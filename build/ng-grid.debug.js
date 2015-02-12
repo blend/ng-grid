@@ -2,7 +2,7 @@
 * ng-grid JavaScript Library
 * Authors: https://github.com/angular-ui/ng-grid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 06/03/2014 18:51
+* Compiled At: 02/12/2015 15:27
 ***********************************************/
 (function(window, $) {
 'use strict';
@@ -1828,7 +1828,11 @@ var ngGrid = function ($scope, options, sortService, domUtilityService, $filter,
             angular.forEach(asterisksArray, function(colDef, i) {
                 // Get the ngColumn that matches the current column from columnDefs
                 var ngColumn = $scope.columns[indexMap[colDef.index]];
-                ngColumn.width = asteriskVal * colDef.width.length;
+
+                // Respect min col width for asterisks as well
+                var asterixWidth =  asteriskVal * colDef.width.length;
+                ngColumn.width = (colDef.minWidth > asterixWidth) ? colDef.minWidth : asterixWidth;
+
                 if (ngColumn.visible !== false) {
                     totalWidth += ngColumn.width;
                 }
@@ -3548,7 +3552,7 @@ ngGridDirectives.directive('ngViewport', [function() {
             var scrollLeft = evt.target.scrollLeft,
                 scrollTop = evt.target.scrollTop;
             if ($scope.$headerContainer) {
-                $scope.$headerContainer.scrollLeft(scrollLeft);
+                $scope.$headerContainer.css({right: scrollLeft});
             }
             $scope.adjustScrollLeft(scrollLeft);
             $scope.adjustScrollTop(scrollTop);
