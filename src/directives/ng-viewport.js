@@ -14,7 +14,7 @@ ngGridDirectives.directive('ngViewport', [function() {
             var scrollLeft = evt.target.scrollLeft,
                 scrollTop = evt.target.scrollTop;
             if ($scope.$headerContainer) {
-                $scope.$headerContainer.scrollLeft(scrollLeft);
+                $scope.$headerContainer.css({right: scrollLeft});
             }
             $scope.adjustScrollLeft(scrollLeft);
             $scope.adjustScrollTop(scrollTop);
