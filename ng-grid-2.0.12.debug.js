@@ -2,7 +2,7 @@
 * ng-grid JavaScript Library
 * Authors: https://github.com/angular-ui/ng-grid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 06/03/2014 18:51
+* Compiled At: 02/25/2015 20:18
 ***********************************************/
 (function(window, $) {
 'use strict';
@@ -1828,7 +1828,11 @@ var ngGrid = function ($scope, options, sortService, domUtilityService, $filter,
             angular.forEach(asterisksArray, function(colDef, i) {
                 // Get the ngColumn that matches the current column from columnDefs
                 var ngColumn = $scope.columns[indexMap[colDef.index]];
-                ngColumn.width = asteriskVal * colDef.width.length;
+
+                // Respect min col width for asterisks as well
+                var asterixWidth =  asteriskVal * colDef.width.length;
+                ngColumn.width = (colDef.minWidth > asterixWidth) ? colDef.minWidth : asterixWidth;
+                
                 if (ngColumn.visible !== false) {
                     totalWidth += ngColumn.width;
                 }
@@ -2077,27 +2081,40 @@ var ngGrid = function ($scope, options, sortService, domUtilityService, $filter,
             }
             r++;
         };
-        for (var i = 0; i < x; i++) {
-            var col = $scope.columns[i];
-            if (col.visible !== false) {
-                var w = col.width + colwidths;
-                if (col.pinned) {
-                    addCol(col);
-                    var newLeft = i > 0 ? (scrollLeft + totalLeft) : scrollLeft;
-                    domUtilityService.setColLeft(col, newLeft, self);
-                    totalLeft += col.width;
-                } else {
-                    if (w >= scrollLeft) {
-                        if (colwidths <= scrollLeft + self.rootDim.outerWidth) {
-                            addCol(col);
-                        }
-                    }
+        var cols = 0;
+        for (var i = 0; i < x; i++)
+            if($scope.columns[i].visible) cols++;
+
+        var repaint = cols !== $scope.renderedColumns.length ? true : false;
+
+        if(repaint) {
+            $scope.columns_pinned = 0;
+            for (var i = 0; i < x; i++) {
+                var col = $scope.columns[i];
+                if (col.visible !== false) {
+                    var w = col.width + colwidths;
+                    if (col.pinned) {
+                        addCol(col);
+                        var newLeft = i > 0 ? (scrollLeft + totalLeft) : scrollLeft;
+                        domUtilityService.setColLeft(col, newLeft, self);
+                        totalLeft += col.width;
+                        $scope.columns_pinned++;
+                    } else
+                        addCol(col);
+                    colwidths += col.width;
                 }
-                colwidths += col.width;
             }
+            if (dcv)
+                $scope.renderedColumns = newCols;
         }
-        if (dcv) {
-            $scope.renderedColumns = newCols;
+
+        else {
+            for (var i = 0; i < $scope.columns_pinned; i++) {
+                var col = $scope.columns[i];
+                var newLeft = i > 0 ? (scrollLeft + totalLeft) : scrollLeft;
+                domUtilityService.setColLeft(col, newLeft, self);
+                totalLeft += col.width;
+            }
         }
     };
     self.prevScrollTop = 0;
@@ -3548,7 +3565,7 @@ ngGridDirectives.directive('ngViewport', [function() {
             var scrollLeft = evt.target.scrollLeft,
                 scrollTop = evt.target.scrollTop;
             if ($scope.$headerContainer) {
-                $scope.$headerContainer.scrollLeft(scrollLeft);
+                $scope.$headerContainer.css({right: scrollLeft});
             }
             $scope.adjustScrollLeft(scrollLeft);
             $scope.adjustScrollTop(scrollTop);
