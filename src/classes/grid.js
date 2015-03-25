@@ -527,7 +527,7 @@ var ngGrid = function ($scope, options, sortService, domUtilityService, $filter,
                 // Respect min col width for asterisks as well
                 var asterixWidth =  asteriskVal * colDef.width.length;
                 ngColumn.width = (colDef.minWidth > asterixWidth) ? colDef.minWidth : asterixWidth;
-                
+
                 if (ngColumn.visible !== false) {
                     totalWidth += ngColumn.width;
                 }
@@ -780,9 +780,11 @@ var ngGrid = function ($scope, options, sortService, domUtilityService, $filter,
         for (var i = 0; i < x; i++)
             if($scope.columns[i].visible) cols++;
 
-        var repaint = cols !== $scope.renderedColumns.length ? true : false;
+        function needRepaint() {
+            return cols !== $scope.renderedColumns.length || !angular.equals($scope.columns, $scope.renderedColumns, true);
+        }
 
-        if(repaint) {
+        if(needRepaint()) {
             $scope.columns_pinned = 0;
             for (var i = 0; i < x; i++) {
                 var col = $scope.columns[i];
