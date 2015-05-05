@@ -2,7 +2,11 @@
 * ng-grid JavaScript Library
 * Authors: https://github.com/angular-ui/ng-grid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
+<<<<<<< HEAD
 * Compiled At: 05/05/2015 15:10
+=======
+* Compiled At: 03/25/2015 16:12
+>>>>>>> master
 ***********************************************/
 (function(window, $) {
 'use strict';
@@ -1577,6 +1581,7 @@ var ngGrid = function ($scope, options, sortService, domUtilityService, $filter,
                 var ngColumn = $scope.columns[indexMap[colDef.index]];
                 var asterixWidth =  asteriskVal * colDef.width.length;
                 ngColumn.width = (colDef.minWidth > asterixWidth) ? colDef.minWidth : asterixWidth;
+
                 if (ngColumn.visible !== false) {
                     totalWidth += ngColumn.width;
                 }
@@ -1817,9 +1822,11 @@ var ngGrid = function ($scope, options, sortService, domUtilityService, $filter,
         for (var i = 0; i < x; i++)
             if($scope.columns[i].visible) cols++;
 
-        var repaint = cols !== $scope.renderedColumns.length ? true : false;
+        function needRepaint() {
+            return cols !== $scope.renderedColumns.length || !angular.equals($scope.columns, $scope.renderedColumns, true);
+        }
 
-        if(repaint) {
+        if(needRepaint()) {
             $scope.columns_pinned = 0;
             for (var i = 0; i < x; i++) {
                 var col = $scope.columns[i];
